@@ -66,15 +66,22 @@ function drawCell(
             : status == "hold" ? "#829769"
             : "#f0d9b5";
     }
+	 
     if (checked) {
         ctx.fillStyle = "#e94035";
         ctx.fill();
     } else if (!beaten_piece) {
+		
         ctx.fill();
     } else {
-        ctx.fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187";
+        ctx.fillStyle = i % 2 == j % 2 ? "#ff0000" : "#ff0000";
         ctx.fill();
     }
+	// if (beaten_piece) {
+    //     ctx.fillStyle = "#ff000";
+	// 	ctx.fill() // Lighter overlay for beaten pieces
+    //     // ctx.fillRect(cds[0][0], cds[0][1], cds[2][0] - cds[0][0], cds[2][1] - cds[0][1]);
+    // }
 	 
 const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
     const centerY = (cds[0][1] + cds[1][1] + cds[2][1] + cds[3][1]) / 4;
@@ -92,47 +99,7 @@ const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
     ctx.fillText(cellName, centerX, centerY);
 }
 
-	// function drawCell(
-	// 	ctxs, i, j, cds, status,
-	// 	hlighted = false,
-	// 	checked = false,
-	// 	beaten_piece = false
-	// ) {
-	// 	let ctx = i % 2 == j % 2 ? ctxs[0] : ctxs[1]
-	// 	ctx.beginPath()
-	// 	ctx.moveTo(cds[0][0], cds[0][1])
-	// 	ctx.lineTo(cds[1][0], cds[1][1])
-	// 	ctx.lineTo(cds[2][0], cds[2][1])
-	// 	ctx.lineTo(cds[3][0], cds[3][1])
-	// 	ctx.closePath()
-	// 	if (i % 2 == j % 2) {
-	// 		ctx.fillStyle = hlighted && status != "hold" ? "#aaa23b"
-	// 												: status == "hold" ? "#646f40"
-	// 												: "#b58863"
-	// 	} else {
-	// 		ctx.fillStyle = hlighted && status != "hold" ? "#cdd26a"
-	// 												: status == "hold" ? "#829769"
-	// 												: "#f0d9b5"
-	// 	}
-	// 	if (checked) {
-	// 		ctx.fillStyle = "#e94035"
-	// 		ctx.fill()
-	// 	} else if (!beaten_piece) {
-	// 		ctx.fill()
-	// 	} else {
-	// 		ctx.fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187"
-	// 		ctx.fill()
-	// 	}
-	// 	const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
-    // const centerY = (cds[0][1] + cds[1][1] + cds[2][1] + cds[3][1]) / 4;
-    // const cellName = String.fromCharCode(65 + i) + (j + 1); // Example: A1, B2, etc.
-    // ctx.font = "12px Arial";
-    // ctx.fillStyle = "black";
-    // ctx.textAlign = "center";
-    // ctx.textBaseline = "middle";
-    // ctx.fillText(cellName, centerX, centerY);
-	// } 
-	  
+	
 	function drawSide(ctx, a, b, r,side) {
 		console.log(side )
 		console.log(prefixNotation[side][side]["rows"][0])
@@ -396,12 +363,14 @@ const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
 											board.cells[s][i][j].status,
 											board.cells[s][i][j].hlighted,
 											board.cells[s][i][j].checked,
-											 false,
+											 true,
 											cur_side
 										)
 									} else {
-										ctx[2].beginPath()
-										let rad =  12
+										 
+										ctx[2].beginPath();
+										
+										let rad = 14
 										ctx[2].arc(cds[0], cds[1], rad, 0, 2 * Math.PI, false)
 										ctx[2].fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187"
 										ctx[2].fill()
