@@ -802,6 +802,8 @@ let process_game = function (q) {
                     cur_side_move = 3
                 } else {
                     cur_side_move = (cur_side_move + 1) % 3
+                    io.emit("current_player", cur_side_move)
+                  
                 }
             }
 
@@ -811,6 +813,8 @@ let process_game = function (q) {
     socket.on("request_beaten", function (c1) {
         socket.emit("receive_beaten", cur_beaten_list(c1))
     })
+     
+    
 
     socket.on("request_board", function() {
         socket.emit("receive_board", board)

@@ -71,32 +71,7 @@
 			ctx.fill()
 		}
 	} 
-	function drawTurnIndicator(ctx, currentPlayer) {
-    ctx.save();
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 5;
-
-    // Draw the line based on the player's side
-    if (currentPlayer === 0) {
-        ctx.beginPath();
-        ctx.moveTo(-350, 400); // Bottom of the board (for Player 1)
-        ctx.lineTo(350, 400);
-        ctx.stroke();
-    } else if (currentPlayer === 1) {
-        ctx.beginPath();
-        ctx.moveTo(400, -350); // Right side of the board (for Player 2)
-        ctx.lineTo(400, 350);
-        ctx.stroke();
-    } else if (currentPlayer === 2) {
-        ctx.beginPath();
-        ctx.moveTo(-400, -350); // Left side of the board (for Player 3)
-        ctx.lineTo(-400, 350);
-        ctx.stroke();
-    }
-
-    ctx.restore();
-}
-
+ 
 	function drawSide(ctx, a, b, r) {
 		let cells_coords = {}
 		let x0 = -b * Math.sqrt(3) / 2
@@ -323,7 +298,7 @@
 						board.cells[cell[0]][cell[1]][cell[2]].beaten = true
 					}
 				})
-
+				 
 				socket.on("game_end", function() {
 					add_to_chat("<font color='red'>" + "GAME END" + "</font>")
 					document.getElementById("restart-btn").style.display = "block";
@@ -482,12 +457,31 @@
 				})
 			}
 		})
- 
+		socket.on("current_player",data=>
+		{
+	document.getElementById("boxa0").style.backgroundColor = "transparent";
+    document.getElementById("boxa1").style.backgroundColor = "transparent";
+    document.getElementById("boxa2").style.backgroundColor = "transparent";
+
+    // Highlight the current player's box
+    if (data === 0) {
+        document.getElementById("boxa0").style.backgroundColor = "green";
+    } else if (data === 1) {
+        document.getElementById("boxa1").style.backgroundColor = "green";
+    } else if (data === 2) {
+        document.getElementById("boxa2").style.backgroundColor = "green";
+    }
+		
+		
+		})
 		
 		socket.on("made_move", function() {
+			 
 			move_sound.pause()
 			move_sound.currentTime = 0
 			move_sound.play()
+			 
+			 
 		})
 		socket.on("beat_move", function() {
 			capture_sound.pause()
@@ -578,11 +572,19 @@
 	<div style="position: absolute; left: 50%;">
 		<canvas width="1024" height="900" style="position: relative; left: -80%; top: 0; z-index: 0">
 		</canvas>
-    <div style="position: relative; top: 0; left: -10%;">
-      <h1 id="timer1" class="timer" style="position: absolute; left: -46%;">00:00</button>
-      <h1 id="timer2" class="timer" style="position: absolute; left: -26%;">00:00</button>
-      <h1 id="timer3" class="timer" style="position: absolute; left: -6%;">00:00</button>
-    </div>
+		<div style=" flex: auto; "> 
+		<div id="boxa0" style="position: absolute; left: -46%;width: fit-content; display: flex; align-items:  center; ">
+			<div id="box1" style="width: 40px; height: 40px; background-color: white; margin-right: 10px;"></div>
+			<h1 id="timer1" class="timer">00:00</h1>
+		</div>
+		<div id="boxa1" style="position: absolute; left: -26%; display: flex; align-items: center;">
+			<div id="box2" style="width: 40px; height: 40px; background-color: black; margin-right: 10px;"></div>
+			<h1 id="timer2" class="timer">00:00</h1>
+		</div>
+		<div id="boxa2" style="position: absolute; left: -6%; display: flex; align-items: center;">
+			<div id="box3" style="width: 40px; height: 40px; background-color: rgb(165, 157, 157); margin-right: 10px;"></div>
+			<h1 id="timer3" class="timer">00:00</h1>
+		</div></div>
 	</div>
 	<div style="position: absolute; left: 50%; z-index: 3">
 			<div id="chat-text"><div><font color="red">Welcome</font></div></div>
