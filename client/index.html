@@ -71,6 +71,31 @@
 			ctx.fill()
 		}
 	} 
+	function drawTurnIndicator(ctx, currentPlayer) {
+    ctx.save();
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 5;
+
+    // Draw the line based on the player's side
+    if (currentPlayer === 0) {
+        ctx.beginPath();
+        ctx.moveTo(-350, 400); // Bottom of the board (for Player 1)
+        ctx.lineTo(350, 400);
+        ctx.stroke();
+    } else if (currentPlayer === 1) {
+        ctx.beginPath();
+        ctx.moveTo(400, -350); // Right side of the board (for Player 2)
+        ctx.lineTo(400, 350);
+        ctx.stroke();
+    } else if (currentPlayer === 2) {
+        ctx.beginPath();
+        ctx.moveTo(-400, -350); // Left side of the board (for Player 3)
+        ctx.lineTo(-400, 350);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
 
 	function drawSide(ctx, a, b, r) {
 		let cells_coords = {}
@@ -303,12 +328,14 @@
 					add_to_chat("<font color='red'>" + "GAME END" + "</font>")
 					document.getElementById("restart-btn").style.display = "block";
 				})
+			 
 
 				let update = function() {
 					window.requestAnimFrame(update)
 					for (let i = 0; i < ctx.length; i++) {
 						ctx[i].clearRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height)
 					}
+					drawTurnIndicator(ctx[2], cur_side_move);
 					for (let s = 0; s < 3; s++) {
 						let cur_side = sbp[s]
 						for (let i = 0; i < 4; i++) {

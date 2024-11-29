@@ -692,6 +692,10 @@ let process_game = function (q) {
               get_side(c1) == cur_side_move) {
             let moved = false
             let beat = false
+            if (!firstMoveMade) {
+                firstMoveMade = true; // Mark the first move as made
+                MOVE_START_TIME = Date.now(); // Start the timer
+            }
             if (is_castling(c1, c2)) {
                 moved = true
                 let c3 = [c2[0], c2[1], c2[2] < c1[2] ? 0 : 7]
@@ -874,12 +878,14 @@ let refresh_board = function (socket) {
 //         }
 //     }, 250)
 // }
+let firstMoveMade = false; 
 let init_game = function () {
     if (gameInterval) {
         clearInterval(gameInterval); // Clear the previous interval
     }
 
     board = new Board(); // Reset the board
+    firstMoveMade = false;
     cur_side_move = 0; // Start with the first player's move
     timers = [INIT_TIME, INIT_TIME, INIT_TIME]; // Reset timers
     MOVE_START_TIME = Date.now(); // Reset move start time
@@ -897,6 +903,7 @@ let init_game = function () {
 
     // Set up the game timer loop
     gameInterval = setInterval(function () {
+        if (!firstMoveMade) return; 
         if (cur_side_move == 3) {
             if (!notified) {
                 for (let q in sockets_list) {
