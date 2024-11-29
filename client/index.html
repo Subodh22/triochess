@@ -38,41 +38,104 @@
 				window.setTimeout(a, 1E3/60)
 			}
 	} ();
+	let prefixNotation = [{0:{"cols":"ABCDEFGH","rows":[1,2,3,4]}},
+		 
+		{1:{"cols":"LKJIDCBA","rows":[8, 7, 6, 5]}},
+		{2:{"cols":"HGFEIJKL","rows":[12, 11, 10, 9]}}]
+function drawCell(
+    ctxs, i, j, cds, status,
+    hlighted = false,
+    checked = false,
+    beaten_piece = false,
+	side = 0
+) {
 
-	function drawCell(
-		ctxs, i, j, cds, status,
-		hlighted = false,
-		checked = false,
-		beaten_piece = false
-	) {
-		let ctx = i % 2 == j % 2 ? ctxs[0] : ctxs[1]
-		ctx.beginPath()
-		ctx.moveTo(cds[0][0], cds[0][1])
-		ctx.lineTo(cds[1][0], cds[1][1])
-		ctx.lineTo(cds[2][0], cds[2][1])
-		ctx.lineTo(cds[3][0], cds[3][1])
-		ctx.closePath()
-		if (i % 2 == j % 2) {
-			ctx.fillStyle = hlighted && status != "hold" ? "#aaa23b"
-													: status == "hold" ? "#646f40"
-													: "#b58863"
-		} else {
-			ctx.fillStyle = hlighted && status != "hold" ? "#cdd26a"
-													: status == "hold" ? "#829769"
-													: "#f0d9b5"
-		}
-		if (checked) {
-			ctx.fillStyle = "#e94035"
-			ctx.fill()
-		} else if (!beaten_piece) {
-			ctx.fill()
-		} else {
-			ctx.fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187"
-			ctx.fill()
-		}
-	} 
- 
-	function drawSide(ctx, a, b, r) {
+    let ctx = i % 2 == j % 2 ? ctxs[0] : ctxs[1];
+    ctx.beginPath();
+    ctx.moveTo(cds[0][0], cds[0][1]);
+    ctx.lineTo(cds[1][0], cds[1][1]);
+    ctx.lineTo(cds[2][0], cds[2][1]);
+    ctx.lineTo(cds[3][0], cds[3][1]);
+    ctx.closePath();
+    if (i % 2 == j % 2) {
+        ctx.fillStyle = hlighted && status != "hold" ? "#aaa23b"
+            : status == "hold" ? "#646f40"
+            : "#b58863";
+    } else {
+        ctx.fillStyle = hlighted && status != "hold" ? "#cdd26a"
+            : status == "hold" ? "#829769"
+            : "#f0d9b5";
+    }
+    if (checked) {
+        ctx.fillStyle = "#e94035";
+        ctx.fill();
+    } else if (!beaten_piece) {
+        ctx.fill();
+    } else {
+        ctx.fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187";
+        ctx.fill();
+    }
+	 
+const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
+    const centerY = (cds[0][1] + cds[1][1] + cds[2][1] + cds[3][1]) / 4;
+
+    // Compute hexagonal-style labels
+	
+    let rowLabel = prefixNotation[side][side]["rows"][i]; // A, B, C, ...
+    let colLabel = prefixNotation[side][side]["cols"][j]; // 1, 2, 3, ...
+    let cellName = colLabel+rowLabel;
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(cellName, centerX, centerY);
+}
+
+	// function drawCell(
+	// 	ctxs, i, j, cds, status,
+	// 	hlighted = false,
+	// 	checked = false,
+	// 	beaten_piece = false
+	// ) {
+	// 	let ctx = i % 2 == j % 2 ? ctxs[0] : ctxs[1]
+	// 	ctx.beginPath()
+	// 	ctx.moveTo(cds[0][0], cds[0][1])
+	// 	ctx.lineTo(cds[1][0], cds[1][1])
+	// 	ctx.lineTo(cds[2][0], cds[2][1])
+	// 	ctx.lineTo(cds[3][0], cds[3][1])
+	// 	ctx.closePath()
+	// 	if (i % 2 == j % 2) {
+	// 		ctx.fillStyle = hlighted && status != "hold" ? "#aaa23b"
+	// 												: status == "hold" ? "#646f40"
+	// 												: "#b58863"
+	// 	} else {
+	// 		ctx.fillStyle = hlighted && status != "hold" ? "#cdd26a"
+	// 												: status == "hold" ? "#829769"
+	// 												: "#f0d9b5"
+	// 	}
+	// 	if (checked) {
+	// 		ctx.fillStyle = "#e94035"
+	// 		ctx.fill()
+	// 	} else if (!beaten_piece) {
+	// 		ctx.fill()
+	// 	} else {
+	// 		ctx.fillStyle = i % 2 == j % 2 ? "#85794e" : "#adb187"
+	// 		ctx.fill()
+	// 	}
+	// 	const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
+    // const centerY = (cds[0][1] + cds[1][1] + cds[2][1] + cds[3][1]) / 4;
+    // const cellName = String.fromCharCode(65 + i) + (j + 1); // Example: A1, B2, etc.
+    // ctx.font = "12px Arial";
+    // ctx.fillStyle = "black";
+    // ctx.textAlign = "center";
+    // ctx.textBaseline = "middle";
+    // ctx.fillText(cellName, centerX, centerY);
+	// } 
+	  
+	function drawSide(ctx, a, b, r,side) {
+		console.log(side )
+		console.log(prefixNotation[side][side]["rows"][0])
 		let cells_coords = {}
 		let x0 = -b * Math.sqrt(3) / 2
 		let ra = a + b / 2
@@ -98,7 +161,7 @@
 					r.rotate(curx, l2.getY(curx)),
 					r.rotate(curx + dx / 2, (l2.getY(curx + dx / 2) + l1.getY(curx + dx / 2)) / 2)
 				]
-				drawCell(ctx, i, j, cells_coords[i][j])
+				drawCell(ctx, i, j, cells_coords[i][j],side)
 				curx += dx
 			}
 			l1 = l2
@@ -123,7 +186,7 @@
 					r.rotate(curx, l2.getY(curx)),
 					r.rotate(curx + dx / 2, (l2.getY(curx + dx / 2) + l1.getY(curx + dx / 2)) / 2)
 				]
-				drawCell(ctx, i, j, cells_coords[i][j + 4])
+				drawCell(ctx, i, j, cells_coords[i][j + 4],side)
 				curx += dx
 			}
 			l1 = l2
@@ -180,11 +243,12 @@
 		let a = 280
 		let b = 310
 		let sides = []
+		 
 		let rots = [new Rotate(0), new Rotate(120), new Rotate(240)]
 		let sides_order = my_side == 0 ? [0, 1, 2] : my_side == 1 ? [1, 2, 0] : [2, 0, 1]
 		let sbp = my_side == 0 ? [0, 1, 2] : my_side == 1 ? [2, 0, 1] : [1, 2, 0]
 		for (let i = 0; i < 3; i++) {
-			sides.push(drawSide(ctx, a, b, rots[i]))
+			sides.push(drawSide(ctx, a, b, rots[i],i))
 		}
 		let psz = 60
 
@@ -313,13 +377,16 @@
 					// drawTurnIndicator(ctx[2], cur_side_move);
 					for (let s = 0; s < 3; s++) {
 						let cur_side = sbp[s]
+
 						for (let i = 0; i < 4; i++) {
 							for (let j = 0; j < 8; j++) {
 								drawCell(
 									ctx, i, j, sides[cur_side][i][j],
 									board.cells[s][i][j].status,
 									board.cells[s][i][j].hlighted,
-									board.cells[s][i][j].checked
+									board.cells[s][i][j].checked,
+									false,
+									cur_side
 								)
 								let cds = sides[cur_side][i][j][4]
 								if (board.cells[s][i][j].beaten) {
@@ -329,7 +396,8 @@
 											board.cells[s][i][j].status,
 											board.cells[s][i][j].hlighted,
 											board.cells[s][i][j].checked,
-											true
+											 false,
+											cur_side
 										)
 									} else {
 										ctx[2].beginPath()
