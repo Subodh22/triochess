@@ -3,7 +3,7 @@ const app = express()
 const serv = require('http').createServer(app)
 const io = require('socket.io')(serv)
 const config = require('./config.js');
-
+let gameInterval;
 // Parse args
 const yargs = require('yargs');
 
@@ -844,37 +844,85 @@ let refresh_board = function (socket) {
         )
     }
 }
-
+ 
+// let init_game = function () {
+//     board = new Board()
+//     cur_side_move = 0
+//     let notified = false
+//     setInterval(function() {
+//         if (cur_side_move == 3) {
+//             if (!notified) {
+//                 for (let q in sockets_list) {
+//                     sockets_list[q].emit("game_end")
+//                 }
+//                 notified = true
+//             }
+//         } else {
+//             let cur_elapsed = MOVE_START_TIME == null ? 0 :  Date.now() - MOVE_START_TIME
+//             MOVE_START_TIME = Date.now()
+//             let i = cur_side_move
+//             if (i != 3) {
+//                 timers[i] -= cur_elapsed
+//                 if (timers[i] <= 0) {
+//                     timers[i] = 0
+//                     cur_side_move = 3
+//                 }
+//             }
+//         }
+//         for (let q in sockets_list) {
+//             sockets_list[q].emit("update_timers", timers)
+//         }
+//     }, 250)
+// }
 let init_game = function () {
-    board = new Board()
-    cur_side_move = 0
-    let notified = false
-    setInterval(function() {
+    if (gameInterval) {
+        clearInterval(gameInterval); // Clear the previous interval
+    }
+
+    board = new Board(); // Reset the board
+    cur_side_move = 0; // Start with the first player's move
+    timers = [INIT_TIME, INIT_TIME, INIT_TIME]; // Reset timers
+    MOVE_START_TIME = Date.now(); // Reset move start time
+    hlighted = []; // Clear highlighted cells
+    checked = []; // Clear checked cells
+
+    let notified = false; // Reset notification state for game end
+
+    // Notify all players of the new game state
+    for (let q in sockets_list) {
+        sockets_list[q].emit("receive_board", board); // Send new board
+        sockets_list[q].emit("update_timers", timers); // Reset timers
+        refresh_board(sockets_list[q]); // Refresh client-side visuals
+    }
+
+    // Set up the game timer loop
+    gameInterval = setInterval(function () {
         if (cur_side_move == 3) {
             if (!notified) {
                 for (let q in sockets_list) {
-                    sockets_list[q].emit("game_end")
+                    sockets_list[q].emit("game_end"); // Notify players of game end
                 }
-                notified = true
+                notified = true;
             }
         } else {
-            let cur_elapsed = MOVE_START_TIME == null ? 0 :  Date.now() - MOVE_START_TIME
-            MOVE_START_TIME = Date.now()
-            let i = cur_side_move
+            let cur_elapsed = MOVE_START_TIME == null ? 0 : Date.now() - MOVE_START_TIME;
+            MOVE_START_TIME = Date.now();
+            let i = cur_side_move;
+
             if (i != 3) {
-                timers[i] -= cur_elapsed
+                timers[i] -= cur_elapsed; // Deduct elapsed time
                 if (timers[i] <= 0) {
-                    timers[i] = 0
-                    cur_side_move = 3
+                    timers[i] = 0; // Timer hits zero
+                    cur_side_move = 3; // End the game
                 }
             }
         }
-        for (let q in sockets_list) {
-            sockets_list[q].emit("update_timers", timers)
-        }
-    }, 250)
-}
 
+        for (let q in sockets_list) {
+            sockets_list[q].emit("update_timers", timers);
+        }
+    }, 250); // Update every 250ms
+};
 let started = false
 
 let CHAT_MESSAGES = []
@@ -910,6 +958,32 @@ io.sockets.on("connection", function (socket) {
             }
         }
     })
+    socket.on("receive_board", function (newBoard) {
+        board = newBoard; // Update the local board state
+        console.log("Game board has been reset.");
+        
+        refreshBoard(); // Add a function to redraw the board
+    });
+    socket.on("game_end", function () {
+        console.log("Game has ended. Waiting for restart...");
+        // Show the restart button or any relevant UI updates here
+    });
+    socket.on("restart_game", function () {
+        if (started) {
+            console.log("Restarting game...");
+            init_game();
+    
+            for (let q in sockets_list) {
+                sockets_list[q].emit("add_to_chat", "<font color='red'>The game has restarted!</font>");
+                sockets_list[q].emit("receive_board", board); 
+            }
+    
+            MOVE_START_TIME = Date.now();
+            for (let q in sockets_list) {
+                process_game(q);
+            }
+        }
+    });
     socket.on("disconnect", function () {
         delete sockets_list[socket.id]
         delete players_list[socket.id]
