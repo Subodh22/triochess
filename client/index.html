@@ -330,8 +330,9 @@ const centerX = (cds[0][0] + cds[1][0] + cds[2][0] + cds[3][0]) / 4;
 					}
 				})
 				 
-				socket.on("game_end", function() {
-					add_to_chat("<font color='red'>" + "GAME END" + "</font>")
+				socket.on("game_end", function(data) {
+
+					add_to_chat("<font color='red'>" +"Game Over! Winner: " + data.winner + "</font>")
 					document.getElementById("restart-btn").style.display = "block";
 				})
 			 

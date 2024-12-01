@@ -6,7 +6,7 @@ const config = require('./config.js');
 let gameInterval;
 // Parse args
 const yargs = require('yargs');
-
+ 
 const argv = yargs
     .option('port', {
         alias: 'p',
@@ -676,6 +676,7 @@ let process_game = function (q) {
                 }
             }
             if (is_cur_mate) {
+                lose_side = cur_side; 
                 return true
             }
         }
@@ -910,8 +911,11 @@ let init_game = function () {
         if (!firstMoveMade) return; 
         if (cur_side_move == 3) {
             if (!notified) {
+                 
+                let winner = lose_side === -1 ? "No Winner (Draw)" : ["Gray", "Black", "White"][(lose_side + 1) % 3];
+                console.log("Game Ended. Winner: " + winner);
                 for (let q in sockets_list) {
-                    sockets_list[q].emit("game_end"); // Notify players of game end
+                    sockets_list[q].emit("game_end",{ winner: winner }); // Notify players of game end
                 }
                 notified = true;
             }
